@@ -1,0 +1,225 @@
+{
+  "name": "WhatsApp Order Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "whatsapp-message",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "WhatsApp Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"messageText\"]}}",
+              "operation": "equal",
+              "value2": "menu"
+            }
+          ]
+        }
+      },
+      "id": "menu-condition",
+      "name": "Is Menu Request?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/orders",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        }
+      },
+      "id": "get-products",
+      "name": "Get Products",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{$node[\"WhatsApp Webhook\"].json[\"body\"][\"whatsapp_api_url\"]}}/messages",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{$json[\"phoneNumber\"]}}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"🍽️ Menu:\\n\\n{{$node[\"Get Products\"].json.map(p => `${p.id}. ${p.name} - $${p.price}\\n   ${p.description}`).join('\\n\\n')}}\"\n  }\n}",
+        "options": {
+          "headers": {
+            "Authorization": "Bearer {{$node[\"WhatsApp Webhook\"].json[\"whatsapp_access_token\"]}}"
+          }
+        }
+      },
+      "id": "send-menu",
+      "name": "Send Menu",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"messageText\"]}}",
+              "operation": "regex",
+              "value2": "\\d+[x×]\\d+"
+            }
+          ]
+        }
+      },
+      "id": "order-condition",
+      "name": "Is Order?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse order message\nconst message = $input.first().json.messageText;\nconst phoneNumber = $input.first().json.phoneNumber;\n\n// Extract items like \"1x2, 3x1\"\nconst itemMatches = message.match(/(\\d+)[x×](\\d+)/g);\nconst items = [];\n\nif (itemMatches) {\n  itemMatches.forEach(match => {\n    const [, itemId, quantity] = match.match(/(\\d+)[x×](\\d+)/);\n    items.push({\n      id: parseInt(itemId),\n      quantity: parseInt(quantity)\n    });\n  });\n}\n\nreturn [{\n  json: {\n    phoneNumber,\n    items,\n    originalMessage: message\n  }\n}];"
+      },
+      "id": "parse-order",
+      "name": "Parse Order",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/orders",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"customer_phone\": \"{{$json[\"phoneNumber\"]}}\",\n  \"items\": {{JSON.stringify($json[\"items\"])}},\n  \"status\": \"pending\"\n}",
+        "options": {}
+      },
+      "id": "create-order",
+      "name": "Create Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"messageText\"]}}",
+              "operation": "equal",
+              "value2": "track"
+            }
+          ]
+        }
+      },
+      "id": "track-condition",
+      "name": "Is Track Request?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 600]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/customers/phone/{{$json[\"phoneNumber\"]}}",
+        "options": {}
+      },
+      "id": "get-customer-orders",
+      "name": "Get Customer Orders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 600]
+    }
+  ],
+  "connections": {
+    "WhatsApp Webhook": {
+      "main": [
+        [
+          {
+            "node": "Is Menu Request?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Menu Request?": {
+      "main": [
+        [
+          {
+            "node": "Get Products",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Order?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Products": {
+      "main": [
+        [
+          {
+            "node": "Send Menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Order?": {
+      "main": [
+        [
+          {
+            "node": "Parse Order",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Track Request?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Order": {
+      "main": [
+        [
+          {
+            "node": "Create Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Track Request?": {
+      "main": [
+        [
+          {
+            "node": "Get Customer Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "id": "whatsapp-order-automation"
+}

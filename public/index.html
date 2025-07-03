@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp N8N Automation - Setup Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .card li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card li:last-child {
+            border-bottom: none;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .status-online {
+            background-color: #4CAF50;
+        }
+        
+        .status-offline {
+            background-color: #f44336;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+        }
+        
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+        
+        .alert-warning {
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+            color: #c53030;
+        }
+        
+        .alert-info {
+            background: #bee3f8;
+            border: 1px solid #90cdf4;
+            color: #2c5282;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 3rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 WhatsApp N8N Automation</h1>
+            <p>Complete setup guide for automated order processing</p>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h3>📱 System Status</h3>
+                <ul>
+                    <li><span class="status-indicator status-online"></span>Node.js Server: Running</li>
+                    <li><span class="status-indicator status-offline"></span>WhatsApp API: Not Configured</li>
+                    <li><span class="status-indicator status-offline"></span>n8n: Not Started</li>
+                    <li><span class="status-indicator status-online"></span>Database: Initialized</li>
+                </ul>
+                <div style="margin-top: 1rem;">
+                    <a href="/api/orders" class="btn btn-secondary">View Orders</a>
+                    <a href="/api/customers" class="btn btn-secondary">View Customers</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>⚙️ Setup Steps</h3>
+                <ol style="padding-left: 1.5rem;">
+                    <li>Install n8n globally</li>
+                    <li>Configure WhatsApp Business API</li>
+                    <li>Set up environment variables</li>
+                    <li>Create n8n workflows</li>
+                    <li>Test webhook connections</li>
+                </ol>
+                <div class="alert alert-info">
+                    <strong>Next:</strong> Follow the detailed setup instructions below
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🔗 Important URLs</h3>
+                <ul>
+                    <li><strong>Webhook URL:</strong><br>
+                        <code>http://localhost:3000/webhook/whatsapp</code>
+                    </li>
+                    <li><strong>n8n Interface:</strong><br>
+                        <code>http://localhost:5678</code>
+                    </li>
+                    <li><strong>API Base:</strong><br>
+                        <code>http://localhost:3000/api</code>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>🚀 Quick Start Guide</h3>
+            
+            <h4>1. Install n8n</h4>
+            <div class="code-block">npm install n8n -g</div>
+            
+            <h4>2. Configure Environment Variables</h4>
+            <p>Copy <code>.env.example</code> to <code>.env</code> and fill in your values:</p>
+            <div class="code-block">cp .env.example .env</div>
+            
+            <div class="alert alert-warning">
+                <strong>Required:</strong> You need WhatsApp Business API credentials from Facebook Developer Console
+            </div>
+            
+            <h4>3. Start n8n</h4>
+            <div class="code-block">n8n start</div>
+            
+            <h4>4. Import n8n Workflows</h4>
+            <p>Import the provided workflows in the <code>n8n-workflows/</code> directory</p>
+            
+            <h4>5. Test WhatsApp Integration</h4>
+            <ul style="margin-left: 2rem;">
+                <li>Send "MENU" to your WhatsApp Business number</li>
+                <li>Try placing an order: "1x2, 3x1"</li>
+                <li>Confirm with "CONFIRM"</li>
+                <li>Track with "TRACK"</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h3>📋 Available Commands</h3>
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div>
+                    <h4>Customer Commands:</h4>
+                    <ul>
+                        <li><code>MENU</code> - View menu</li>
+                        <li><code>HELP</code> - Get help</li>
+                        <li><code>TRACK</code> - Track order</li>
+                        <li><code>1x2, 3x1</code> - Place order</li>
+                        <li><code>CONFIRM</code> - Confirm order</li>
+                        <li><code>CANCEL</code> - Cancel order</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>🔧 WhatsApp N8N Automation System | Built with Node.js, Express & SQLite</p>
+        </div>
+    </div>
+    
+    <script>
+        // Simple status checker
+        async function checkStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                console.log('System Status:', data);
+            } catch (error) {
+                console.log('Status check failed:', error);
+            }
+        }
+        
+        // Check status on load
+        checkStatus();
+    </script>
+</body>
+</html>
